@@ -6,6 +6,7 @@
 
 class Game {
 public:
+	std::vector<bool> keysPressed;
 	std::vector<Voxel> voxels;
 
 	void startGame();
