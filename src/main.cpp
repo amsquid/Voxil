@@ -1,23 +1,14 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/CircleShape.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/System/Vector2.hpp>
+
+#include "game.hpp"
 
 int main() {
-	sf::RenderWindow window(sf::VideoMode(200, 200), "Voxil");
-	sf::CircleShape shape(100.f);
-	shape.setFillColor(sf::Color::Green);
+	Game game;
 
-	while (window.isOpen())
-	{
-		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed)
-				window.close();
-		}
-
-		window.clear();
-		window.draw(shape);
-		window.display();
-	}
+	game.startGame();
 
 	return 0;
 }
