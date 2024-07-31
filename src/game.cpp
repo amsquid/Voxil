@@ -7,6 +7,7 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/WindowStyle.hpp>
+#include <cmath>
 #include <iostream>
 #include <vector>
 
@@ -24,14 +25,22 @@ void Game::draw() {
 
 		float xOffset = x - camera.position.x;
 		float yOffset = y - camera.position.y;
-		float zOffset = z - camera.position.z;
+		float zOffset = (z * .001f) - camera.position.z;
+
+		float distance = sqrt(
+			pow(x - camera.position.x, 2) +
+			pow(y - camera.position.y, 2) +
+			pow(z - camera.position.z, 2)
+		);
+
+		std::cout << distance << "\n";
 
 		if(zOffset <= 0) continue;
 
 		float xProjected = xOffset / zOffset;
 		float yProjected = yOffset / zOffset;
 
-		sf::RectangleShape shape(sf::Vector2f(10, 10));
+		sf::RectangleShape shape(sf::Vector2f(1 / zOffset, 1 / zOffset));
 		shape.setFillColor(sf::Color::White);
 
 		shape.setPosition(
@@ -63,13 +72,13 @@ void Game::update() {
 	}
 
 	if(!keysPressed.at(sf::Keyboard::Scan::LShift)) {
-		if(keysPressed.at(sf::Keyboard::Scan::W)) camera.position.y -= 0.01f;
-		if(keysPressed.at(sf::Keyboard::Scan::S)) camera.position.y += 0.01f;
-		if(keysPressed.at(sf::Keyboard::Scan::A)) camera.position.x -= 0.01f;
-		if(keysPressed.at(sf::Keyboard::Scan::D)) camera.position.x += 0.01f;
+		if(keysPressed.at(sf::Keyboard::Scan::W)) camera.position.y -= 0.001f;
+		if(keysPressed.at(sf::Keyboard::Scan::S)) camera.position.y += 0.001f;
+		if(keysPressed.at(sf::Keyboard::Scan::A)) camera.position.x -= 0.001f;
+		if(keysPressed.at(sf::Keyboard::Scan::D)) camera.position.x += 0.001f;
 	} else {
-		if(keysPressed.at(sf::Keyboard::Scan::W)) camera.position.z += 0.001f;
-		if(keysPressed.at(sf::Keyboard::Scan::S)) camera.position.z -= 0.001f;
+		if(keysPressed.at(sf::Keyboard::Scan::W)) camera.position.z += 0.00001f;
+		if(keysPressed.at(sf::Keyboard::Scan::S)) camera.position.z -= 0.00001f;
 
 	}
 
@@ -99,7 +108,7 @@ void Game::startGame() {
 		}
 	}
 
-
+	//voxels.push_back(Voxel(0,0,0));
 
 	Game::loop();
 }
