@@ -7,6 +7,7 @@
 #include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#include <SFML/System/Vector3.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/WindowStyle.hpp>
@@ -77,10 +78,10 @@ void Game::draw() {
 		quad[2].position = sf::Vector2f(xDraw - (size / 2), yDraw - (size / 2));
 		quad[3].position = sf::Vector2f(xDraw + (size / 2), yDraw - (size / 2));
 
-		quad[0].color = sf::Color::Red;
-		quad[1].color = sf::Color::Green;
-		quad[2].color = sf::Color::Yellow;
-		quad[3].color = sf::Color::Blue;
+		quad[0].color = sf::Color::White;
+		quad[1].color = sf::Color::White;
+		quad[2].color = sf::Color::White;
+		quad[3].color = sf::Color::White;
 
 		drawn++;
 		
@@ -108,25 +109,38 @@ void Game::update() {
 		}
 	}
 
-	if(keysPressed.at(sf::Keyboard::Scan::W)) camera.position.z += 0.01f;
-	if(keysPressed.at(sf::Keyboard::Scan::S)) camera.position.z -= 0.01f;
-	if(keysPressed.at(sf::Keyboard::Scan::A)) camera.position.x -= 0.01f;
-	if(keysPressed.at(sf::Keyboard::Scan::D)) camera.position.x += 0.01f;
-	if(keysPressed.at(sf::Keyboard::Scan::Space)) camera.position.y -= 0.01f;
-	if(keysPressed.at(sf::Keyboard::Scan::LControl)) camera.position.y += 0.01f;
+	camera.velocity = sf::Vector3f();
 
-	if(keysPressed.at(sf::Keyboard::Scan::Up)) camera.rotation.y -= 0.01f;
-	if(keysPressed.at(sf::Keyboard::Scan::Down)) camera.rotation.y += 0.01f;
-	if(keysPressed.at(sf::Keyboard::Scan::Left)) camera.rotation.x -= 0.01f;
-	if(keysPressed.at(sf::Keyboard::Scan::Right)) camera.rotation.x += 0.01f;
+	if(keysPressed.at(sf::Keyboard::Scan::W)) camera.velocity.z = 0.1f;
+	if(keysPressed.at(sf::Keyboard::Scan::S)) camera.velocity.z = -0.1f;
+	if(keysPressed.at(sf::Keyboard::Scan::A)) camera.velocity.x = -0.1f;
+	if(keysPressed.at(sf::Keyboard::Scan::D)) camera.velocity.x = 0.1f;
+	if(keysPressed.at(sf::Keyboard::Scan::Space)) camera.velocity.y = -0.1f;
+	if(keysPressed.at(sf::Keyboard::Scan::LControl)) camera.velocity.y = 0.1f;
 
+	if(keysPressed.at(sf::Keyboard::Scan::Up)) camera.rotation.y -= 0.05f;
+	if(keysPressed.at(sf::Keyboard::Scan::Down)) camera.rotation.y += 0.05f;
+	if(keysPressed.at(sf::Keyboard::Scan::Left)) camera.rotation.x -= 0.05f;
+	if(keysPressed.at(sf::Keyboard::Scan::Right)) camera.rotation.x += 0.05f;
 
+	std::vector<Entity>::iterator it;
+
+	for(it = entities.begin(); it < entities.end(); it++) {
+		it->move(Game::deltaTime);
+	}
+
+	camera.move(Game::deltaTime);
 }
 
 void Game::loop() {
+	sf::Clock deltaClock;
+	Game::deltaTime = deltaClock.restart(); // Presetting the deltatime
+
 	while(Game::window->isOpen()) {
 		Game::update();
 		Game::draw();
+
+		Game::deltaTime = deltaClock.restart();
 	}
 }
 

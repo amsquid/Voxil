@@ -1,3 +1,4 @@
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <vector>
 
@@ -9,8 +10,12 @@ public:
 	std::vector<bool> keysPressed;
 	std::vector<Voxel> voxels;
 
+	std::vector<Entity> entities;
+
 	void startGame();
 	void stopGame();
+
+	sf::Time deltaTime;
 
 	Camera camera;
 
