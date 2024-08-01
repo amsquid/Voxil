@@ -4,7 +4,9 @@
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
+#include <SFML/Graphics/VertexBuffer.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <SFML/System/Vector3.hpp>
@@ -24,6 +26,9 @@ void Game::draw() {
 	Game::window->clear();
 
 	int drawn = 0;
+
+	sf::VertexArray verticies(sf::Quads, voxels.size() * 4);
+	int i = 0;
 
 	for(it = voxels.begin(); it < voxels.end(); it++) {		
 		float x = it->position.x * .005f;
@@ -49,7 +54,7 @@ void Game::draw() {
 		);
 
 		if(zRot2 <= 0) continue;
-		if(distance > 0.6f) continue;
+		//if(distance > 0.6f) continue;
 
 		float xProjected = xRot2 / (zRot2 * 0.001f);
 		float yProjected = yRot2 / (zRot2 * 0.001f);
@@ -60,7 +65,7 @@ void Game::draw() {
 		float size = 1 / (zRot2 / 10);
 		//float size = 10;
 
-		std::cout << distance << " " << size << "\n";
+		//std::cout << distance << " " << size << "\n";
 
 		if(
 			(xDraw < -size || xDraw > window->getSize().x) ||
@@ -71,29 +76,58 @@ void Game::draw() {
 
 		//std::cout << xProjected << " " << yProjected << "\n";
 
-		sf::VertexArray quad(sf::Quads, 4);
 
-		quad[0].position = sf::Vector2f(xDraw + (size / 2), yDraw + (size / 2));
-		quad[1].position = sf::Vector2f(xDraw - (size / 2), yDraw + (size / 2));
-		quad[2].position = sf::Vector2f(xDraw - (size / 2), yDraw - (size / 2));
-		quad[3].position = sf::Vector2f(xDraw + (size / 2), yDraw - (size / 2));
+		verticies[i * 4 + 0].position = sf::Vector2f(xDraw + (size / 2), yDraw + (size / 2));
+		verticies[i * 4 + 1].position = sf::Vector2f(xDraw - (size / 2), yDraw + (size / 2));
+		verticies[i * 4 + 2].position = sf::Vector2f(xDraw - (size / 2), yDraw - (size / 2));
+		verticies[i * 4 + 3].position = sf::Vector2f(xDraw + (size / 2), yDraw - (size / 2));
 
-		quad[0].color = sf::Color::White;
-		quad[1].color = sf::Color::White;
-		quad[2].color = sf::Color::White;
-		quad[3].color = sf::Color::White;
+		verticies[i * 4 + 0].color = sf::Color::White;
+		verticies[i * 4 + 1].color = sf::Color::White;
+		verticies[i * 4 + 2].color = sf::Color::White;
+		verticies[i * 4 + 3].color = sf::Color::White;
 
 		drawn++;
 		
-		Game::window->draw(quad);
+
+		i++;
 	}
 
-	std::cout << "DRAWN: " << drawn << "\n";
+	Game::window->draw(verticies);
+
+	std::cout << "DRAWN: " << drawn << " FPS: " << Game::fps << "\n";
 
 	Game::window->display();
 }
 
 void Game::update() {
+	// Resetting Camera Velocity
+	camera.velocity = sf::Vector3f();
+
+	// Movement and Rotation of camera
+	if(keysPressed.at(sf::Keyboard::Scan::W)) camera.velocity.z = 0.1f;
+	if(keysPressed.at(sf::Keyboard::Scan::S)) camera.velocity.z = -0.1f;
+	if(keysPressed.at(sf::Keyboard::Scan::A)) camera.velocity.x = -0.1f;
+	if(keysPressed.at(sf::Keyboard::Scan::D)) camera.velocity.x = 0.1f;
+	if(keysPressed.at(sf::Keyboard::Scan::Space)) camera.velocity.y = -0.1f;
+	if(keysPressed.at(sf::Keyboard::Scan::LControl)) camera.velocity.y = 0.1f;
+
+	if(keysPressed.at(sf::Keyboard::Scan::Up)) camera.rotation.y -= 0.02f;
+	if(keysPressed.at(sf::Keyboard::Scan::Down)) camera.rotation.y += 0.02f;
+	if(keysPressed.at(sf::Keyboard::Scan::Left)) camera.rotation.x -= 0.02f;
+	if(keysPressed.at(sf::Keyboard::Scan::Right)) camera.rotation.x += 0.02f;
+
+	// Moving entities
+	std::vector<Entity>::iterator it;
+
+	for(it = entities.begin(); it < entities.end(); it++) {
+		it->move(Game::deltaTime);
+	}
+
+	camera.move(Game::deltaTime);
+}
+
+void Game::pollEvents() {
 	sf::Event event;
 
 	while (Game::window->pollEvent(event)) {
@@ -108,39 +142,32 @@ void Game::update() {
 			keysPressed.at(event.key.scancode) = false;
 		}
 	}
-
-	camera.velocity = sf::Vector3f();
-
-	if(keysPressed.at(sf::Keyboard::Scan::W)) camera.velocity.z = 0.1f;
-	if(keysPressed.at(sf::Keyboard::Scan::S)) camera.velocity.z = -0.1f;
-	if(keysPressed.at(sf::Keyboard::Scan::A)) camera.velocity.x = -0.1f;
-	if(keysPressed.at(sf::Keyboard::Scan::D)) camera.velocity.x = 0.1f;
-	if(keysPressed.at(sf::Keyboard::Scan::Space)) camera.velocity.y = -0.1f;
-	if(keysPressed.at(sf::Keyboard::Scan::LControl)) camera.velocity.y = 0.1f;
-
-	if(keysPressed.at(sf::Keyboard::Scan::Up)) camera.rotation.y -= 0.05f;
-	if(keysPressed.at(sf::Keyboard::Scan::Down)) camera.rotation.y += 0.05f;
-	if(keysPressed.at(sf::Keyboard::Scan::Left)) camera.rotation.x -= 0.05f;
-	if(keysPressed.at(sf::Keyboard::Scan::Right)) camera.rotation.x += 0.05f;
-
-	std::vector<Entity>::iterator it;
-
-	for(it = entities.begin(); it < entities.end(); it++) {
-		it->move(Game::deltaTime);
-	}
-
-	camera.move(Game::deltaTime);
 }
 
 void Game::loop() {
 	sf::Clock deltaClock;
+	sf::Clock fpsClock;
+
 	Game::deltaTime = deltaClock.restart(); // Presetting the deltatime
 
+	float currentTime;
+	float lastTime;
+
 	while(Game::window->isOpen()) {
+		Game::pollEvents();
+
+		Game::deltaTime = deltaClock.restart();
+
 		Game::update();
 		Game::draw();
 
-		Game::deltaTime = deltaClock.restart();
+		frameCount++;
+
+		if(fpsClock.getElapsedTime() >= fpsUpdate) {
+			fps = frameCount / fpsUpdate.asSeconds();
+			frameCount = 0;
+			fpsClock.restart();
+		}
 	}
 }
 

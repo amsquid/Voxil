@@ -1,5 +1,6 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/System/Time.hpp>
 #include <vector>
 
 #include "voxel.hpp"
@@ -16,6 +17,10 @@ public:
 	void stopGame();
 
 	sf::Time deltaTime;
+	sf::Time fpsUpdate = sf::seconds(1);
+
+	float fps = 0.0f;
+	int frameCount;
 
 	Camera camera;
 
@@ -23,6 +28,7 @@ private:
 	sf::RenderWindow* window;
 
 	void loop();
+	void pollEvents();
 	void update();
 	void draw();
 };
