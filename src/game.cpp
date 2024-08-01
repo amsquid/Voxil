@@ -186,7 +186,7 @@ void Game::startGame() {
 		for(int z = -100; z < 100; z++) {
 			Voxel voxel(x, 0, z);
 
-			voxel.color = sf::Color(rand() % 255, rand() % 255, rand() % 255);
+			voxel.color = sf::Color(64 + rand() % 50, 255 - rand() % 50, 71 + rand() % 50);
 
 			voxels.push_back(voxel);
 		}
