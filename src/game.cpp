@@ -32,7 +32,7 @@ void Game::draw() {
 
 	for(it = voxels.begin(); it < voxels.end(); it++) {		
 		float x = it->position.x * .005f;
-		float y = it->position.y;
+		float y = it->position.y * .005f;
 		float z = it->position.z * .005f;
 
 		float xOffset = x - camera.position.x;
@@ -76,16 +76,15 @@ void Game::draw() {
 
 		//std::cout << xProjected << " " << yProjected << "\n";
 
-
 		verticies[i * 4 + 0].position = sf::Vector2f(xDraw + (size / 2), yDraw + (size / 2));
 		verticies[i * 4 + 1].position = sf::Vector2f(xDraw - (size / 2), yDraw + (size / 2));
 		verticies[i * 4 + 2].position = sf::Vector2f(xDraw - (size / 2), yDraw - (size / 2));
 		verticies[i * 4 + 3].position = sf::Vector2f(xDraw + (size / 2), yDraw - (size / 2));
 
-		verticies[i * 4 + 0].color = sf::Color::White;
-		verticies[i * 4 + 1].color = sf::Color::White;
-		verticies[i * 4 + 2].color = sf::Color::White;
-		verticies[i * 4 + 3].color = sf::Color::White;
+		verticies[i * 4 + 0].color = it->color;
+		verticies[i * 4 + 1].color = it->color;
+		verticies[i * 4 + 2].color = it->color;
+		verticies[i * 4 + 3].color = it->color;
 
 		drawn++;
 		
@@ -191,9 +190,16 @@ void Game::startGame() {
 
 			voxels.push_back(voxel);
 		}
+
 	}
 
-	//voxels.push_back(Voxel(0,0,1));
+	for(int y = 0; y > -20; y--) {
+		Voxel voxel(0, y, 1);
+
+		voxel.color = sf::Color(rand() % 255, rand() % 255, rand() % 255);
+
+		voxels.push_back(voxel);
+	}
 
 	Game::loop();
 }
