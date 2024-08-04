@@ -15,6 +15,7 @@
 #include <SFML/Window/WindowStyle.hpp>
 #include <cmath>
 #include <cstdlib>
+#include <functional>
 #include <iostream>
 #include <vector>
 
@@ -29,6 +30,8 @@ void Game::draw() {
 
 	sf::VertexArray verticies(sf::Quads, voxels.size() * 4);
 	int i = 0;
+
+	std::map<float, Square, std::greater<float>> squares;
 
 	for(it = voxels.begin(); it < voxels.end(); it++) {		
 		float x = it->position.x * .005f;
@@ -68,15 +71,15 @@ void Game::draw() {
 		//std::cout << distance << " " << size << "\n";
 
 		if(
-			(xDraw < -size || xDraw > window->getSize().x) ||
-			(yDraw < -size || yDraw > window->getSize().y)
+			(xDraw < -size || xDraw > window->getSize().x + size) ||
+			(yDraw < -size || yDraw > window->getSize().y + size)
 		) {
 			continue;
 		}
 
 		//std::cout << xProjected << " " << yProjected << "\n";
 
-		verticies[i * 4 + 0].position = sf::Vector2f(xDraw + (size / 2), yDraw + (size / 2));
+		/*verticies[i * 4 + 0].position = sf::Vector2f(xDraw + (size / 2), yDraw + (size / 2));
 		verticies[i * 4 + 1].position = sf::Vector2f(xDraw - (size / 2), yDraw + (size / 2));
 		verticies[i * 4 + 2].position = sf::Vector2f(xDraw - (size / 2), yDraw - (size / 2));
 		verticies[i * 4 + 3].position = sf::Vector2f(xDraw + (size / 2), yDraw - (size / 2));
@@ -84,10 +87,36 @@ void Game::draw() {
 		verticies[i * 4 + 0].color = it->color;
 		verticies[i * 4 + 1].color = it->color;
 		verticies[i * 4 + 2].color = it->color;
-		verticies[i * 4 + 3].color = it->color;
+		verticies[i * 4 + 3].color = it->color;*/
+
+		squares.insert({distance, Square(xDraw, yDraw, size, it->color)});
 
 		drawn++;
-		
+
+		i++;
+	}
+
+	std::map<float, Square>::iterator itt;
+
+	i = 0;
+
+	for(itt = squares.begin(); itt != squares.end(); itt++) {
+		Square square = itt->second;
+
+		float x = square.position.x;
+		float y = square.position.y;
+		float size = square.size;
+		sf::Color color = square.color;
+
+		verticies[i * 4 + 0].position = sf::Vector2f(x + (size / 2), y + (size / 2));
+		verticies[i * 4 + 1].position = sf::Vector2f(x - (size / 2), y + (size / 2));
+		verticies[i * 4 + 2].position = sf::Vector2f(x - (size / 2), y - (size / 2));
+		verticies[i * 4 + 3].position = sf::Vector2f(x + (size / 2), y - (size / 2));
+
+		verticies[i * 4 + 0].color = color;
+		verticies[i * 4 + 1].color = color;
+		verticies[i * 4 + 2].color = color;
+		verticies[i * 4 + 3].color = color;
 
 		i++;
 	}
